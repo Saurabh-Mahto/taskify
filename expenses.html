@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Taskify - Expense Manager</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .expense-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      overflow-y: auto;
+      height: 80%;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2b6777;
+      margin-bottom: 20px;
+    }
+
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+
+    .input-section input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      outline: none;
+    }
+
+    .input-section button {
+      padding: 10px 20px;
+      background-color: #2b6777;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .input-section button:hover {
+      background-color: #3b8b9c;
+    }
+
+    .expense-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .expense-item {
+      background-color: #f8f9fa;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .expense-item button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #2b6777;
+    }
+
+    .expense-item button:hover {
+      text-decoration: underline;
+    }
+
+    .total-expense {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #2b6777;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="expense-container">
+    <h2>💰 Taskify - Expense Manager</h2>
+
+    <!-- Input Section -->
+    <div class="input-section">
+      <input type="text" id="expenseTitle" placeholder="Expense Title" />
+      <input type="number" id="expenseAmount" placeholder="Amount" />
+      <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <!-- Expense List -->
+    <ul class="expense-list" id="expenseList"></ul>
+
+    <!-- Total Expense -->
+    <div class="total-expense">
+      Total Expense: <span id="totalExpense">0</span> ₹
+    </div>
+  </div>
+
+  <script>
+    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+    // Render Expenses
+    function renderExpenses() {
+      const list = document.getElementById("expenseList");
+      const totalExpense = document.getElementById("totalExpense");
+      list.innerHTML = "";
+      let total = 0;
+
+      expenses.forEach((expense, index) => {
+        const li = document.createElement("li");
+        li.className = "expense-item";
+
+        li.innerHTML = `
+          <div>
+            <h4>${expense.title}</h4>
+            <p>${expense.amount} ₹</p>
+          </div>
+          <div>
+            <button onclick="editExpense(${index})">Edit</button>
+            <button onclick="deleteExpense(${index})">Delete</button>
+          </div>
+        `;
+        list.appendChild(li);
+        total += expense.amount;
+      });
+
+      totalExpense.textContent = total;
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+    }
+
+    // Add Expense Function
+    function addExpense() {
+      const title = document.getElementById("expenseTitle").value.trim();
+      const amount = parseFloat(document.getElementById("expenseAmount").value.trim());
+
+      if (title && !isNaN(amount) && amount > 0) {
+        expenses.push({ title, amount });
+        document.getElementById("expenseTitle").value = "";
+        document.getElementById("expenseAmount").value = "";
+        renderExpenses();
+      }
+    }
+
+    // Edit Expense Function
+    function editExpense(index) {
+      const expense = expenses[index];
+      const newTitle = prompt("Edit Title:", expense.title);
+      const newAmount = prompt("Edit Amount:", expense.amount);
+
+      if (newTitle !== null && newAmount !== null && !isNaN(newAmount) && newAmount > 0) {
+        expenses[index] = { title: newTitle, amount: parseFloat(newAmount) };
+        renderExpenses();
+      }
+    }
+
+    // Delete Expense Function
+    function deleteExpense(index) {
+      expenses.splice(index, 1);
+      renderExpenses();
+    }
+
+    // Initial Render
+    renderExpenses();
+  </script>
+
+</body>
+</html>
